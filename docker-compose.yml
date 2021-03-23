@@ -1,0 +1,29 @@
+services:
+  web:
+    build: ./webapp
+    ports:
+      - "8080:80"
+    networks:
+      - web-network
+    depends_on:
+      - flask
+  flask:
+    build: ./src
+    networks:
+      - web-network
+      - db-network
+    depends_on:
+      - postgres
+  # uses port 5432
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_DB=books
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - db-network
+
+networks:
+  web-network:
+  db-network:
