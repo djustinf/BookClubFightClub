@@ -29,7 +29,7 @@ export default class Container extends React.Component {
           <div>
             <p>What should I call you?</p><input type='text' className="nes-input" id='userInput'/>
             <p>What club are you joining?</p><input type='text' className="nes-input" id='clubInput'/>
-            <button type="button" className="nes-btn is-primary" onClick={this.setup}>Join that mother fucking book club!</button>
+            <button type="button" className="nes-btn is-primary" onClick={this.setup}>Join that book club!</button>
           </div>
         }
       </div>

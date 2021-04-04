@@ -13,29 +13,34 @@ export default class BookList extends React.Component {
 
     this.addBook = this.addBook.bind(this);
     this.removeBook = this.removeBook.bind(this);
+    this.updateBooks = this.updateBooks.bind(this);
   }
 
   componentDidMount() {
-    const sse = new EventSource(`http://localhost:8080/flask/club/${this.state.club}/listen`);
-    
-    sse.onmessage = (msg) => {
-      const book = JSON.parse(msg.data);
-
-      this.setState({ books: [...this.state.books, book] });
-    };
-
-    this.setState({ sse });
+    // replace this with long-polling, WebSockets, or SSEs in the future
+    this.updateBooks();
   }
 
   componentWillUnmount() {
-    this.state.sse.close();
+  }
+
+  updateBooks() {
+    axios.get(`http://localhost:8080/go/club/${this.state.club}/get_book_list`)
+    .then(res => {
+      const books = res.data.book_list.map(book => ({ name: book.name, rating: book.rating, href: book.href, img: book.img }));
+      // this may cause a book you just added to vanish for a bit... that should probably be fixed :)
+      this.setState({ books });
+    },
+    err => console.log(err));
+
+    setTimeout(this.updateBooks, 3000);
   }
 
   addBook() {
     const book = document.getElementById('bookInput').value;
 
     if (book) {
-      axios.get('http://localhost:8080/flask/get_book_data', { params: { book_name: book }})
+      axios.get('http://localhost:8080/go/get_book_data', { params: { book_name: book }})
       .then(res => {
           const rating = res.data.rating;
           const href = res.data.href;
@@ -43,7 +48,9 @@ export default class BookList extends React.Component {
 
           const new_book = { name: book, rating, href, img };
 
-          axios.post(`http://localhost:8080/flask/club/${this.state.club}/add_book`, new_book)
+          this.setState({ books: [...this.state.books, new_book] });
+
+          axios.post(`http://localhost:8080/go/club/${this.state.club}/add_book`, new_book)
           .then(res => {
             console.log('Successfully sent book!');
           },
@@ -55,8 +62,16 @@ export default class BookList extends React.Component {
 
   removeBook() {
     const books = this.state.books;
-    books.pop();
+    const book = books.pop();
     this.setState({ books });
+
+    if (book) {
+      axios.post(`http://localhost:8080/go/club/${this.state.club}/remove_book`, book)
+      .then(res => {
+        console.log('Successfully sent book!');
+      },
+      err => console.log(err));
+    }
   }
 
   render() {
