@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import Book from './book';
 
 export default class BookList extends React.Component {
   constructor(props) {
@@ -21,15 +22,15 @@ export default class BookList extends React.Component {
     this.updateBooks();
   }
 
-  componentWillUnmount() {
-  }
-
   updateBooks() {
     axios.get(`http://localhost:8080/go/club/${this.state.club}/get_book_list`)
     .then(res => {
-      const books = res.data.book_list.map(book => ({ name: book.name, rating: book.rating, href: book.href, img: book.img }));
-      // this may cause a book you just added to vanish for a bit... that should probably be fixed :)
-      this.setState({ books });
+      const book_list = res.data?.book_list;
+      if (book_list) {
+        const books = book_list.map(book => ({ name: book.name, rating: book.rating, href: book.href, img: book.img }));
+        // this may cause a book you just added to vanish for a bit... that should probably be fixed :)
+        this.setState({ books });
+      }
     },
     err => console.log(err));
 
@@ -60,9 +61,10 @@ export default class BookList extends React.Component {
     }
   }
 
-  removeBook() {
-    const books = this.state.books;
-    const book = books.pop();
+  removeBook(name) {
+    const book = this.state.books.find(e => e.name === name);
+    const books = this.state.books.filter(e => e.name !== name);
+
     this.setState({ books });
 
     if (book) {
@@ -77,18 +79,9 @@ export default class BookList extends React.Component {
   render() {
     return (
       <div>
-        <ul className="nes-list is-disc">
-          {this.state.books.map((book, index) => {
-            return (
-              <li key={index}>
-                <a href={book.href} target='_blank' rel='noreferrer'>{book.name}</a> - {book.rating} - <img src={book.img} alt='Oof owie ouch my bones'/>
-              </li>
-            )
-          })}
-        </ul>
+        {this.state.books.map((book) => (<Book key={book.name} book={book} remove={this.removeBook}></Book>))}
         <input type='text' className="nes-input" id='bookInput'/>
         <button type="button" className="nes-btn is-primary" onClick={this.addBook}>Add Book</button>
-        <button type="button" className="nes-btn is-error" onClick={this.removeBook}>Remove Book</button>
       </div>
     )
   }
