@@ -27,8 +27,9 @@ func GetDBPool() *pgxpool.Pool {
 	return dbPool
 }
 
-func CreateDatabaseDao(c echo.Context) {
-	GetDBPool().Exec(c.Request().Context(), createQuery)
+func CreateDatabaseDao() {
+	GetDBPool().Exec(context.Background(), createBooksQuery)
+	GetDBPool().Exec(context.Background(), createVotesQuery)
 }
 
 func GetBookListDao(c echo.Context, club string) []types.BookData {
@@ -57,4 +58,30 @@ func AddBookDao(c echo.Context, b *types.BookData) {
 
 func RemoveBookDao(c echo.Context, b *types.BookData) {
 	GetDBPool().Exec(c.Request().Context(), deleteBookQuery, b.Club, b.Name)
+}
+
+func AddVoteDao(c echo.Context, v *types.VoteData) {
+	GetDBPool().Exec(c.Request().Context(), addVoteQuery, v.Name, v.Club, v.Vote)
+}
+
+func RemoveVoteDao(c echo.Context, v *types.VoteData) {
+	GetDBPool().Exec(c.Request().Context(), removeVoteQuery, v.Club, v.Name)
+}
+
+func GetVoteListDao(c echo.Context, club string) []types.VoteData {
+	rows, _ := GetDBPool().Query(c.Request().Context(), getVoteListQuery, club)
+	defer rows.Close()
+
+	var votes []types.VoteData
+	for rows.Next() {
+		columns, _ := rows.Values()
+		data := &types.VoteData{
+			// skip id columns[0]
+			Name: columns[1].(string),
+			Club: columns[2].(string),
+			Vote: columns[3].(string),
+		}
+		votes = append(votes, *data)
+	}
+	return votes
 }

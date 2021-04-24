@@ -11,3 +11,13 @@ type BookData struct {
 type BookList struct {
 	BookList []BookData `json:"book_list"`
 }
+
+type VoteData struct {
+	Name string `json:"name"`
+	Club string `json:"club"`
+	Vote string `json:"vote"`
+}
+
+type VoteList struct {
+	VoteList []VoteData `json:"vote_list"`
+}

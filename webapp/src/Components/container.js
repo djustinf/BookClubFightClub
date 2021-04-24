@@ -16,7 +16,7 @@ export default class Container extends React.Component {
     if (!(username && club)) {
       alert('Please enter both your name and a club name!');
     } else {
-      this.setState({ info: { username, club } });
+      this.setState({ user: username, club: club });
     }
   }
 
@@ -24,8 +24,8 @@ export default class Container extends React.Component {
     return (
       <div className="nes-container with-title">
         <p className="title">BookClubFightClub</p>
-        { this.state.info ?
-          <BookList info={this.state.info}></BookList> :
+        { (this.state.club && this.state.user) ?
+          <BookList user={this.state.user} club={this.state.club}></BookList> :
           <div>
             <p>What should I call you?</p><input type='text' className="nes-input" id='userInput'/>
             <p>What club are you joining?</p><input type='text' className="nes-input" id='clubInput'/>

@@ -8,6 +8,7 @@ import (
 func main() {
 	dbPool := db.GetDBPool()
 	defer dbPool.Close()
+	db.CreateDatabaseDao()
 
 	// Will only be necessary on switching to long-polling/WebSockets
 	// rdb := db.GetRDB()

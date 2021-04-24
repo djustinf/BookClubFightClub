@@ -30,9 +30,14 @@ func GetServer() *echo.Echo {
 
 	// Routes
 	e.GET("/get_book_data", getBookData)
+
 	e.GET("/club/:club/get_book_list", getBookList)
 	e.POST("/club/:club/add_book", addBook)
 	e.POST("/club/:club/remove_book", removeBook)
+
+	e.GET("/club/:club/get_vote_list", getVoteList)
+	e.POST("/club/:club/add_vote", addVote)
+	e.POST("/club/:club/remove_vote", removeVote)
 
 	return e
 }
@@ -119,4 +124,43 @@ func removeBook(c echo.Context) error {
 	db.RemoveBookDao(c, book)
 
 	return c.JSON(http.StatusOK, book)
+}
+
+// Also used to update votes
+func addVote(c echo.Context) error {
+	m := echo.Map{}
+	c.Bind(&m)
+
+	vote := &types.VoteData{
+		Club: c.Param("club"),
+		Name: m["name"].(string),
+		Vote: m["vote"].(string),
+	}
+
+	db.AddVoteDao(c, vote)
+
+	return c.JSON(http.StatusOK, vote)
+}
+
+func removeVote(c echo.Context) error {
+	m := echo.Map{}
+	c.Bind(&m)
+
+	vote := &types.VoteData{
+		Club: c.Param("club"),
+		Name: m["name"].(string),
+		Vote: m["vote"].(string),
+	}
+
+	db.RemoveVoteDao(c, vote)
+
+	return c.JSON(http.StatusOK, vote)
+}
+
+func getVoteList(c echo.Context) error {
+	club := c.Param("club")
+	vl := &types.VoteList{
+		VoteList: db.GetVoteListDao(c, club),
+	}
+	return c.JSON(http.StatusOK, vl)
 }
