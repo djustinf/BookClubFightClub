@@ -16,6 +16,7 @@ export default class BookList extends React.Component {
     this.updateBooks = this.updateBooks.bind(this);
 
     this.addVote = this.addVote.bind(this);
+    this.addRandomVote = this.addRandomVote.bind(this);
     this.updateVotes= this.updateVotes.bind(this);
   }
 
@@ -75,6 +76,12 @@ export default class BookList extends React.Component {
     err => console.log(err));
   }
 
+  addRandomVote() {
+    const keys = Object.keys(this.state.books);
+    const choice = this.state.books[keys[Math.floor(keys.length * Math.random())]];
+    this.addVote(choice.name);
+  }
+
   addBook() {
     const book = document.getElementById('bookInput').value;
 
@@ -131,6 +138,7 @@ export default class BookList extends React.Component {
                                                      </Book>))}
         <input type='text' className="nes-input" id='bookInput'/>
         <button type="button" className="nes-btn is-primary" onClick={this.addBook}>Add Book</button>
+        <button type="button" className="nes-btn is-warning" onClick={this.addRandomVote}>I'm a coward</button>
       </div>
     )
   }
